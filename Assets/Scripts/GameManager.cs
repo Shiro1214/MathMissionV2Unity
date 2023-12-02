@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
     public float MathLevel = 10.0f;
     private float a,b;
     private TextMeshProUGUI mathQuestion;
-    private TextMeshProUGUI TimerText;
+    private TextMeshProUGUI TimerText, scoreText, enemyInText;
     public float time = 30.0f;
     private bool hasRightAnswer;
     private List<string> operators;
@@ -40,8 +40,16 @@ public class GameManager : MonoBehaviour
         
         TimerText = GameObject.Find("Timer").GetComponent<TextMeshProUGUI>();
         TimerText.text = "Time: " + ((int)GameSettings.Instance.timer).ToString();
+        
         mathQuestion = GameObject.Find("MathQuestion").GetComponent<TextMeshProUGUI>();
         mathQuestion.text = "";
+        
+        scoreText = GameObject.Find("Score").GetComponent<TextMeshProUGUI>();
+        scoreText.text = "Score: " + GameSettings.Instance.score.ToString();
+
+        enemyInText = GameObject.Find("EnemyIn").GetComponent<TextMeshProUGUI>();
+        enemyInText.text = "Enemy in: " + GameSettings.Instance.enemyIn.ToString();
+
         operators = new List<string>
         {
             "+",

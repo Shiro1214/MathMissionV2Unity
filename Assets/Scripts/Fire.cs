@@ -6,19 +6,27 @@ public class Fire : MonoBehaviour
 {
     private Rigidbody bulletRb;
     private GameObject focalPoint;
+    public PlayerController player;
     // Start is called before the first frame update
-    private Vector3 flyDir;
+    public Vector3 flyDir;
     // Start is called before the first frame update
     void Start()
     {
         bulletRb= GetComponent<Rigidbody>();
         focalPoint = GameObject.Find("Focal Point");
-        flyDir = focalPoint.transform.forward;
+        player = GameObject.Find("Player").GetComponent<PlayerController>();
+        var scopeCamera = GameObject.Find("scopeCam");
+        if (player.isScope){
+            flyDir = scopeCamera.transform.forward;
+        } else {
+            flyDir = focalPoint.transform.forward;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        bulletRb.AddForce(flyDir * 1000f * Time.deltaTime);
+        //flyDir
+        bulletRb.AddForce(flyDir * 2000f * Time.deltaTime);
     }
 }

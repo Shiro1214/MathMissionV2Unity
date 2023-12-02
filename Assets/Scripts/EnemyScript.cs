@@ -14,18 +14,22 @@ public class EnemyScript : MonoBehaviour
     public GameObject mapCanvas;
     public TextMeshProUGUI textUi;
     public TextMeshProUGUI mapLabel;
-    
+    public AudioClip correctSound, incorrectSound;
     public TextMeshProUGUI scoreUI;
     public TextMeshProUGUI enemyIn;
     public bool hasRightAnswer, isHit;
     public float speedForce, answer;
 
+    private Animator enemyAnim;
+
+    private AudioSource audioSource;
     //private int score;
     // Start is called before the first frame update
     void Start()
     {
         
-       // audioSource = GetComponent<AudioSource>();
+        enemyAnim = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
         //fixedRotation = transform.rotation;
         textUi  = answerCanvas.transform.Find("MathAnswer").gameObject.GetComponent<TextMeshProUGUI>();
         mapLabel  = mapCanvas.transform.Find("MathAnswerLabel").gameObject.GetComponent<TextMeshProUGUI>();
@@ -49,7 +53,9 @@ public class EnemyScript : MonoBehaviour
 
         var direction = entrancePos - transform.position;
         direction = direction.normalized;
-        enemyRb.AddForce(direction * speedForce * Time.deltaTime,ForceMode.Impulse);
+        if (!isHit){
+            enemyRb.AddForce(direction * speedForce * Time.deltaTime,ForceMode.Impulse);
+        }
         enemyRb.rotation = Quaternion.LookRotation(direction); //velocity direction rotation
         if(transform.position.y < -10){
             Destroy(gameObject);
@@ -62,6 +68,7 @@ public class EnemyScript : MonoBehaviour
 
      private void OnCollisionEnter(Collision other)
     {
+        
         if (gm.isGameActive){
             if (other.gameObject == entrance){
                 if (hasRightAnswer) {
@@ -70,7 +77,7 @@ public class EnemyScript : MonoBehaviour
                     GameSettings.Instance.enemyIn += 1;
                     Debug.Log("In +1");
                 
-                    scoreUI.text = "Score: " + gm.score.ToString();//GameSettings.Instance.score.ToString();
+                    scoreUI.text = "Score: " + GameSettings.Instance.score.ToString();//GameSettings.Instance.score.ToString();
                     enemyIn.text = "Enemy in: " + GameSettings.Instance.enemyIn.ToString();
                     gm.clearEnemies();
                 }
@@ -79,6 +86,7 @@ public class EnemyScript : MonoBehaviour
 
             else if (other.gameObject.CompareTag("Bullet") && !isHit)
             {
+            audioSource.Stop();
             //explosionParticle.Play();
             isHit = true;
             particleObj.Play();
@@ -87,7 +95,7 @@ public class EnemyScript : MonoBehaviour
             //particleObj= Instantiate(explosionParticle, transform.position, explosionParticle.transform.rotation);
             if (hasRightAnswer){
 
-                //audioSource.PlayOneShot(correctSound);
+                audioSource.PlayOneShot(correctSound);
                 GameSettings.Instance.score += 10;
                 Debug.Log("+10");
                 //gm.score += 10;
@@ -95,20 +103,21 @@ public class EnemyScript : MonoBehaviour
                    GameSettings.Instance.score += 1;
                 }
                 scoreUI.text = "Score: " + GameSettings.Instance.score.ToString();
-                //Destroy(gameObject, correctSound.length + 0.1f);
+                Destroy(gameObject, correctSound.length + 0.1f);
                 gm.clearEnemies();
             } else 
             {
-                //audioSource.PlayOneShot(incorrectSound);
+                audioSource.PlayOneShot(incorrectSound);
                 GameSettings.Instance.score -= 10;
+                enemyAnim.SetTrigger("die");
                 //gm.score -= 10;                
                 //Debug.Log("-10");
                 scoreUI.text = "Score: " + GameSettings.Instance.score.ToString();
-                //Destroy(gameObject, incorrectSound.length + 0.1f);
+                Destroy(gameObject, incorrectSound.length + 2.5f);
                 
             }
 
-            Destroy(gameObject,0.1f);
+            //Destroy(gameObject,0.1f);
             }
         }
     }
